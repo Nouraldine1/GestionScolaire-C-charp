@@ -1,0 +1,163 @@
+﻿
+@using Microsoft.AspNetCore.Http
+@inject IHttpContextAccessor HttpContextAccessor
+<!DOCTYPE html>
+<html lang="en">
+
+    <head>
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>@ViewData["Title"] - ges_commande</title>
+    @* <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" /> *@
+        <link href="https://cdn.jsdelivr.net/npm/flowbite@2.5.2/dist/flowbite.min.css" rel="stylesheet" />
+        <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+        <link rel="stylesheet" href="/wwwroot/css/output.css" />
+        <link rel="stylesheet" href="~/ges_commande.styles.css" asp-append-version="true" />
+    </head>
+
+    <body class="mx-auto">
+@* 
+    @inject Microsoft.AspNetCore.Http.IHttpContextAccessor HttpContextAccessor;
+        @using Newtonsoft.Json;
+    @{
+        var panierJson = HttpContextAccessor.HttpContext.Session.GetString("Panier"); ;
+        Panier panier = null;
+        if (panierJson != null)
+        {
+            panier = JsonConvert.DeserializeObject<Panier>(panierJson);
+        }
+    } *@
+
+     @{
+        // Utilisation de l'IHttpContextAccessor pour accéder à la session
+        var panier = HttpContextAccessor.HttpContext.Session.GetObjectFromJson<Panier>("Panier");
+        var compteur = panier?.CommandeProduit.Count() ?? 0;
+    }
+
+    @* ------------------------- *@
+        <header>
+            <nav class="bg-gray-900 border-gray-200 py-3">
+                <div class="w-full flex flex-wrap items-center justify-between mx-auto px-16">
+                    <!-- Logo -->
+                    <div class="flex flex-row space-x-6">
+                        <a asp-area="" asp-controller="Home" asp-action="Index" class="flex items-center space-x-3 rtl:space-x-reverse">
+                            <img src="/image/loggo.png" alt="SIDY BOUTIQUE" class="w-20 h-auto bg-white rounded-full"/>
+                        </a>
+                    </div>
+
+                    <!-- Navigation centrée -->
+                    <div class="items-center justify-center hidden w-full md:flex md:w-auto md:order-1"
+                        id="navbar-user">
+                        <ul
+                            class="flex flex-row font-medium p-4 md:p-0 mt-4 border border-gray-100 rounded-lg md:space-x-8 rtl:space-x-reverse md:flex-row md:mt-0 md:border-0">
+                            <li>
+                                <a asp-area="" asp-controller="Home" asp-action="Index"
+                                    class="flex items-center p-2 text-white rounded-lg">
+                                    <span class="flex-1 ms-3 text-2xl whitespace-nowrap">Home</span>
+                                    
+                                </a>
+                            </li>
+                            <li>
+                                <a asp-area="" asp-controller="Produit" asp-action="Index"
+                                    class="flex items-center p-2 text-white rounded-lg">
+                                    <span class="flex-1 ms-3 text-2xl whitespace-nowrap">Produits</span>
+                                    
+                                </a>
+                            </li>
+                            <li>
+                                <a asp-area="" asp-controller="Commande" asp-action="Index"
+                                    class="flex items-center p-2 text-white rounded-lg">
+                                    <span class="flex-1 text-2xl whitespace-nowrap">Commandes</span>
+                                    
+                                </a>
+                            </li>
+                            @if (User.IsInRole("Comptable"))
+                            {
+                                <li>
+                                    <a asp-area="" asp-controller="Client" asp-action="Index"
+                                        class="flex items-center p-2 text-white rounded-lg">
+                                        <span class="flex-1 text-2xl whitespace-nowrap">Clients</span>
+                                    </a>
+                                </li>
+                            }
+                        </ul>
+                    </div>
+
+                    <!-- Cart and User menu (right side) -->
+                    <div class="flex items-center md:order-2 space-x-3 md:space-x-0 rtl:space-x-reverse">
+                        <div>
+                        @if (User.IsInRole("Client"))
+                        {
+                                <a asp-area="" asp-controller="Produit" asp-action="PanierList"
+                                    class="flex items-center pe-5 p-2 mr-2 text-white rounded-lg group">
+                                    <svg class="ms-3" xmlns="http://www.w3.org/2000/svg" width="40" height="40"
+                                        viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                                        stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-shopping-cart">
+                                        <circle cx="8" cy="21" r="1" />
+                                        <circle cx="19" cy="21" r="1" />
+                                        <path
+                                            d="M2.05 2.05h2l2.66 12.42a2 2 0 0 0 2 1.58h9.78a2 2 0 0 0 1.95-1.57l1.65-7.43H5.12" />
+                                    </svg>
+                                    <!-- Badge de notification -->
+                                    <div class="text-white bg-red-600 px-2 py-0.5 text-sm font-bold rounded-full"
+                                        style="margin-top: -35%;">
+                                        @* ggg *@
+                                    @compteur
+                                    </div>
+                                </a>
+                        }
+                        </div>
+
+                        <!-- User profile -->
+                        <button type="button" class="flex text-sm rounded-full md:me-0" id="user-menu-button"
+                            aria-expanded="false" data-dropdown-toggle="user-dropdown" data-dropdown-placement="bottom">
+                            <img src="https://i.pinimg.com/enabled_lo/564x/7c/bb/5c/7cbb5c5ac31d7b981bb303ad30bc6992.jpg"
+                                alt="Photo Utilisateur"
+                                class="w-16 h-16 sm:w-12 sm:h-12 rounded-full border-2 border-blue-500" />
+                        </button>
+
+                        <!-- Dropdown menu -->
+                        <div class="z-50 hidden my-4 text-base list-none bg-white rounded-lg shadow" id="user-dropdown">
+                            <div class="px-4 py-2 text-center">
+                                <img class="w-fit h-16 rounded-full mx-auto"
+                                    src="https://i.pinimg.com/enabled_lo/564x/7c/bb/5c/7cbb5c5ac31d7b981bb303ad30bc6992.jpg"
+                                    alt="User avatar" />
+                                <p class="mt-2 font-semibold">@User.FindFirst("Prenom")?.Value -
+                                @User.FindFirst("Nom")?.Value</p>
+                                <p class="mt-2 font-semibold">@User.Identity!.Name</p>
+                            </div>
+                            <a href=""
+                                class="block px-4 py-2 text-sm text-center text-gray-700 hover:bg-gray-100">MODIFIER</a>
+                            <a asp-controller="Securite" asp-action="LogOut"
+                                class="block px-4 py-2 text-sm text-center text-gray-700 hover:bg-gray-100">DECONNEXION</a>
+                        </div>
+                    </div>
+
+                </div>
+            </nav>
+        </header>
+
+    @* ------------------------ *@
+        <div class="mx-auto">
+            <main role="main" class="pb-3">
+            @RenderBody()
+            </main>
+        </div>
+
+    @* <footer class=" footer text-muted bg-blue-400">
+            <div class="container">
+                &copy; 2024 - ges_commande - <a asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
+            </div>
+        </footer> *@
+        <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    @* <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script> *@
+        <script src="https://cdn.jsdelivr.net/npm/flowbite@2.5.2/dist/flowbite.min.js"></script>
+        <script src="/node_modules/flowbite/dist/flowbite.min.js"></script>
+        <script src="~/js/site.js" asp-append-version="true"></script>
+        <script src="~/js/site.js"></script>
+        <script src="/_framework/aspnetcore-browser-refresh.js"></script>
+
+    @await RenderSectionAsync("Scripts", required: false)
+    </body>
+
+</html>
